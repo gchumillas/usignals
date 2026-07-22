@@ -1,6 +1,12 @@
+export type Signal<T> = {
+  get: () => T;
+  set: (value: T) => void;
+};
+
 type Effect = {
   id: string;
   fn?: () => void;
+  onDetachFromSignal?: <T>(s: Signal<T>) => void;
   effectsId: string;
 };
 
@@ -25,27 +31,45 @@ export const createScope = () => {
   };
 };
 
-const createSignal = <T>(sc: Scope, val: T) => {
+const createSignal = <T>(sc: Scope, initVal: T): Signal<T> => {
+  type SignalEffect = {
+    effectsId: string;
+    fn?: () => void;
+    onDetachFromSignal?: (s: Signal<any>) => void;
+    cleaners: Map<string, (effectsId: string) => void>;
+  };
+
   const signal = {
     id: genId(),
-    val,
-    effects: new Map(),
+    val: initVal,
+    effects: new Map<string, SignalEffect>(),
+    instance: {} as Signal<T>,
   };
 
   function cleaner(effectsId: string) {
-    for (const [id, effect] of signal.effects) {
-      if (effectsId === effect.effectsId) {
-        signal.effects.delete(id);
+    const prevEffect = { ...sc.currentEffect };
+    const prevCleaners = sc.cleaners;
+    try {
+      sc.currentEffect = { id: "", fn: undefined, effectsId: "" };
+      sc.cleaners = new Map();
+      for (const [id, effect] of signal.effects) {
+        if (effectsId === effect.effectsId) {
+          effect.onDetachFromSignal?.(signal.instance);
+          signal.effects.delete(id);
+        }
       }
+    } finally {
+      sc.currentEffect = prevEffect;
+      sc.cleaners = prevCleaners;
     }
   }
 
-  return {
+  signal.instance = {
     get: () => {
-      const { id, fn, effectsId } = sc.currentEffect;
+      const { id, fn, onDetachFromSignal, effectsId } = sc.currentEffect;
       if (id) {
         const cleaners = sc.cleaners;
-        signal.effects.set(id, { fn, effectsId, cleaners });
+        signal.effects.set(id, { fn, onDetachFromSignal, effectsId, cleaners });
         cleaners.set(signal.id, cleaner);
       }
       return signal.val;
@@ -56,8 +80,8 @@ const createSignal = <T>(sc: Scope, val: T) => {
       const prevCleaners = sc.cleaners;
       try {
         for (const [id, effect] of signal.effects) {
-          const { fn, effectsId, cleaners } = effect;
-          sc.currentEffect = { id, fn, effectsId };
+          const { fn, onDetachFromSignal, effectsId, cleaners } = effect;
+          sc.currentEffect = { id, fn, onDetachFromSignal, effectsId };
           sc.cleaners = cleaners ?? prevCleaners;
           fn?.();
         }
@@ -67,6 +91,8 @@ const createSignal = <T>(sc: Scope, val: T) => {
       }
     },
   };
+
+  return signal.instance;
 };
 
 const createEffects = (sc: Scope) => {
@@ -76,12 +102,26 @@ const createEffects = (sc: Scope) => {
   };
 
   return {
-    effect: (fn: () => void) => {
+    /**
+     * Runs `fn` and re-runs it whenever any signal it has read changes.
+     *
+     * Note: subscriptions are not automatically pruned between runs; call `clean()`
+     * on the owning effects group to detach from previously read signals.
+     *
+     * Intended for harmless side effects (e.g. updating the UI), not for
+     * setting up resources like database connections or file handles.
+     */
+    effect: (fn: () => void, onDetachFromSignal?: (s: Signal<any>) => void) => {
       const prevEffect = { ...sc.currentEffect };
       const prevCleaners = sc.cleaners;
       try {
         const id = genId();
-        sc.currentEffect = { id, fn, effectsId: effects.id };
+        sc.currentEffect = {
+          id,
+          fn,
+          onDetachFromSignal,
+          effectsId: effects.id,
+        };
         sc.cleaners = effects.signalCleaners;
         fn();
       } finally {
