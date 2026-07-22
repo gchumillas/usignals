@@ -1,11 +1,24 @@
 import udomdiff from "udomdiff";
-import { createScope } from "./core";
+import { createScope, type Signal } from "./core";
 
 const sc = createScope();
 let currentEffects = sc.effects();
 
 export const signal = sc.signal;
-export const effect = (fn: () => void) => currentEffects.effect(fn);
+
+/**
+ * Runs `fn` and re-runs it whenever any signal it has read changes.
+ *
+ * Note: subscriptions are not automatically pruned between runs; use the owning
+ * effects group’s `clean()` to detach from previously read signals.
+ *
+ * Intended for harmless side effects (e.g. updating the UI), not for
+ * setting up resources like database connections or file handles.
+ */
+export const effect = (
+  fn: () => void,
+  onDetachFromSignal?: (s: Signal<any>) => void,
+) => currentEffects.effect(fn, onDetachFromSignal);
 
 export function Render(fn: () => string) {
   const node = document.createTextNode("");
@@ -16,10 +29,10 @@ export function Render(fn: () => string) {
 }
 
 const effectsMap = new WeakMap();
-export function domdiff(
+export function domdiff<T extends { id: string | number }>(
   parentNode: ParentNode,
-  rows: { id: string | number }[],
-  insert: (row: { id: string | number }) => Node,
+  rows: T[],
+  insert: (row: T) => Node,
 ) {
   if (!effectsMap.has(parentNode)) {
     effectsMap.set(parentNode, Object.create(null));
