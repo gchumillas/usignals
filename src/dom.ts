@@ -5,6 +5,13 @@ const sc = createScope();
 let currentEffects = sc.effects();
 
 export const signal = sc.signal;
+
+/**
+ * Runs `fn` and re-runs it whenever any signal it reads changes.
+ *
+ * Intended for harmless side effects (e.g. updating the UI), not for
+ * setting up resources like database connections or file handles.
+ */
 export const effect = (fn: () => void) => currentEffects.effect(fn);
 
 export function Render(fn: () => string) {
@@ -16,10 +23,10 @@ export function Render(fn: () => string) {
 }
 
 const effectsMap = new WeakMap();
-export function domdiff(
+export function domdiff<T extends { id: string | number }>(
   parentNode: ParentNode,
-  rows: { id: string | number }[],
-  insert: (row: { id: string | number }) => Node,
+  rows: T[],
+  insert: (row: T) => Node,
 ) {
   if (!effectsMap.has(parentNode)) {
     effectsMap.set(parentNode, Object.create(null));

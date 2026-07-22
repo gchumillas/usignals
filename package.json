@@ -46,9 +46,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "prepublishOnly": "npm run test && npm run build",
-    "prepare": "husky"
+    "prepare": "[ -n \"$CI\" ] || husky"
   },
   "devDependencies": {
+    "happy-dom": "^20.11.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vitest": "^4.1.10"

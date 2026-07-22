@@ -26,16 +26,30 @@ export const createScope = () => {
 };
 
 const createSignal = <T>(sc: Scope, val: T) => {
+  type SignalEffect = {
+    effectsId: string;
+    fn?: () => void;
+    cleaners: Map<string, (effectsId: string) => void>;
+  };
+
   const signal = {
     id: genId(),
     val,
-    effects: new Map(),
+    effects: new Map<string, SignalEffect>(),
+    onDetaches: new Map<string, (() => void)[]>(),
   };
 
   function cleaner(effectsId: string) {
     for (const [id, effect] of signal.effects) {
       if (effectsId === effect.effectsId) {
         signal.effects.delete(id);
+        if (signal.onDetaches.has(id)) {
+          const fns = signal.onDetaches.get(id) ?? [];
+          for (const fn of fns) {
+            fn();
+          }
+          signal.onDetaches.delete(id);
+        }
       }
     }
   }
@@ -66,6 +80,23 @@ const createSignal = <T>(sc: Scope, val: T) => {
         sc.cleaners = prevCleaners;
       }
     },
+    /**
+     * Registers a callback that runs when the current effect is detached from this signal.
+     *
+     * Must be called from within an active effect; otherwise it throws.
+     * Intended for harmless side effects (e.g. debug logging), not cleanup work
+     * such as closing connections or releasing resources.
+     */
+    onDetach: (fn: () => void) => {
+      const { id } = sc.currentEffect;
+      if (!id) {
+        throw new Error("onDetach debe usarse dentro de un efecto");
+      }
+      if (!signal.onDetaches.has(id)) {
+        signal.onDetaches.set(id, []);
+      }
+      signal.onDetaches.get(id)!.push(fn);
+    },
   };
 };
 
@@ -76,6 +107,12 @@ const createEffects = (sc: Scope) => {
   };
 
   return {
+    /**
+     * Runs `fn` and re-runs it whenever any signal it reads changes.
+     *
+     * Intended for harmless side effects (e.g. updating the UI), not for
+     * setting up resources like database connections or file handles.
+     */
     effect: (fn: () => void) => {
       const prevEffect = { ...sc.currentEffect };
       const prevCleaners = sc.cleaners;
