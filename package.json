@@ -1,6 +1,6 @@
 {
   "name": "@gchumillas/usignals",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha",
   "description": "A tiny, dependency-free reactive signals library for JavaScript/TypeScript.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -42,13 +42,18 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepublishOnly": "npm run test && npm run build"
+    "prepublishOnly": "npm run test && npm run build",
+    "prepare": "husky"
   },
   "devDependencies": {
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vitest": "^4.1.10"
+  },
+  "dependencies": {
+    "udomdiff": "^1.1.2"
   }
 }

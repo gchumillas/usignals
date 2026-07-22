@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
-import { createContext } from "./index.js";
+import { createScope } from "./core.js";
 
 describe("edge cases", () => {
   test("call get/set outside an effect", () => {
-    const ctx = createContext();
+    const ctx = createScope();
     const msg = ctx.signal("aaa");
     expect(msg.get()).toBe("aaa");
     msg.set("bbb");
@@ -13,7 +13,7 @@ describe("edge cases", () => {
 
 describe("multiple signals", () => {
   test("an effect that reads multiple signals", () => {
-    const ctx = createContext();
+    const ctx = createScope();
     const efs = ctx.effects();
     const a = ctx.signal("a");
     const b = ctx.signal("b");
@@ -31,7 +31,7 @@ describe("multiple signals", () => {
   });
 
   test("a signal that affects multiple effects", () => {
-    const ctx = createContext();
+    const ctx = createScope();
     const efs1 = ctx.effects();
     const efs2 = ctx.effects();
     const a = ctx.signal("a");
@@ -61,7 +61,7 @@ describe("multiple signals", () => {
   });
 
   test("selective effects", () => {
-    const ctx = createContext();
+    const ctx = createScope();
     const efs = ctx.effects();
     const a = ctx.signal("a");
     const b = ctx.signal("b");
@@ -90,7 +90,7 @@ describe("multiple signals", () => {
 
 describe("update cases", () => {
   test("consecutive updates", () => {
-    const ctx = createContext();
+    const ctx = createScope();
     const efs = ctx.effects();
     const a = ctx.signal(0);
 
@@ -110,7 +110,7 @@ describe("update cases", () => {
   });
 
   test("signals can be updated inside effect and read outside safely", () => {
-    const ctx = createContext();
+    const ctx = createScope();
     const efs = ctx.effects();
     const a = ctx.signal(1);
     const b = ctx.signal(0);
@@ -125,7 +125,7 @@ describe("update cases", () => {
   });
 
   test("get/set outside effect does not affect existing effects", () => {
-    const ctx = createContext();
+    const ctx = createScope();
     const efs = ctx.effects();
     const a = ctx.signal("a");
     const b = ctx.signal("b");
@@ -146,7 +146,7 @@ describe("update cases", () => {
   });
 
   test("update with the same value", () => {
-    const ctx = createContext();
+    const ctx = createScope();
     const efs = ctx.effects();
     const a = ctx.signal("a");
 
@@ -164,7 +164,7 @@ describe("update cases", () => {
 
 describe("cleaning cases", () => {
   test("cleanup of effects that never read signals", () => {
-    const ctx = createContext();
+    const ctx = createScope();
     const efs = ctx.effects();
 
     efs.effect(() => {
@@ -177,7 +177,7 @@ describe("cleaning cases", () => {
   });
 
   test("partial cleanup with multiple effects groups", () => {
-    const ctx = createContext();
+    const ctx = createScope();
     const efs1 = ctx.effects();
     const efs2 = ctx.effects();
     const efs3 = ctx.effects();
@@ -217,7 +217,7 @@ describe("cleaning cases", () => {
 
 describe("memory and optimization cases", () => {
   test("unused signals", () => {
-    const ctx = createContext();
+    const ctx = createScope();
     const efs = ctx.effects();
     const unused = ctx.signal("never read");
     const used = ctx.signal("active");
@@ -235,7 +235,7 @@ describe("memory and optimization cases", () => {
   });
 
   test("re-registration of the same effect", () => {
-    const ctx = createContext();
+    const ctx = createScope();
     const efs = ctx.effects();
     const a = ctx.signal("a");
     const b = ctx.signal("b");
@@ -261,12 +261,12 @@ describe("memory and optimization cases", () => {
 
 describe("complex cases", () => {
   test("chain of effects", () => {
-    const ctx = createContext();
+    const ctx = createScope();
     const efs = ctx.effects();
     const x = ctx.signal(1);
     const y = ctx.signal(0);
 
-    const seq = [];
+    const seq: string[] = [];
     efs.effect(() => {
       const val = x.get();
       seq.push("effect1");

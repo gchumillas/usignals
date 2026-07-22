@@ -13,6 +13,7 @@
     "vite": "^8.1.1"
   },
   "dependencies": {
+    "@gchumillas/usignals": "file:..",
     "jsx-dom": "^8.1.6"
   }
 }
