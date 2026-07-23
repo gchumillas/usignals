@@ -99,6 +99,7 @@ const createEffects = (sc: Scope) => {
   const effects = {
     id: genId(),
     signalCleaners: new Map<string, (effectsId: string) => void>(),
+    children: new Set<{ clean: () => void }>(),
   };
 
   return {
@@ -129,10 +130,23 @@ const createEffects = (sc: Scope) => {
         sc.cleaners = prevCleaners;
       }
     },
+    addChild: (child: { clean: () => void }) => {
+      if (effects.children.has(child)) return;
+      effects.children.add(child);
+      const origClean = child.clean.bind(child);
+      child.clean = () => {
+        effects.children.delete(child);
+        origClean();
+      };
+    },
     clean: () => {
       for (const [, cleanerFn] of effects.signalCleaners) {
         cleanerFn(effects.id);
       }
+      for (const child of effects.children) {
+        child.clean();
+      }
+      effects.children.clear();
     },
   };
 };
