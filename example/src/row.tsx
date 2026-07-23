@@ -1,7 +1,8 @@
 import { signal, Render } from "@gchumillas/usignals";
+import { type Ingredient } from "./db";
 import { ctx } from "./context";
 
-export const Row = (row: any) => {
+export const Row = (row: Ingredient) => {
   const { handleAddRow, handleDeleteRow } = ctx.use();
   const kcal100g = signal(+row.kcal100g);
   const total = signal(+row.total);

@@ -1,9 +1,9 @@
-export const createContext = () => {
-  const stack: any[] = [];
+export const createContext = <T>() => {
+  const stack: T[] = [];
   return {
     with:
-      (values: any, fn: (...args: any) => Node) =>
-      (...args: any) => {
+      <Args extends any[]>(values: T, fn: (...args: Args) => Node) =>
+      (...args: Args) => {
         stack.push(values);
         try {
           return fn(...args);
@@ -11,7 +11,7 @@ export const createContext = () => {
           stack.pop();
         }
       },
-    use: () => {
+    use: (): T => {
       if (stack.length === 0) {
         throw new Error("ctx.use() was called outside ctx.with(values, fn)");
       }
