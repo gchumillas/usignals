@@ -26,7 +26,7 @@ const effectsMap = new WeakMap();
 export function domdiff<T extends { id: string | number }>(
   parentNode: ParentNode,
   rows: T[],
-  insert: (row: T) => Node,
+  insert: (row: T) => HTMLElement,
 ) {
   if (!effectsMap.has(parentNode)) {
     effectsMap.set(parentNode, Object.create(null));
