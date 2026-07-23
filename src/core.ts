@@ -83,14 +83,21 @@ const createSignal = <T>(sc: Scope, val: T) => {
     /**
      * Registers a callback that runs when the current effect is detached from this signal.
      *
-     * Must be called from within an active effect; otherwise it throws.
+     * Must be called from within an active effect, after the signal has been read at least once
+     * in that effect (via `get()`); otherwise it throws.
+     *
      * Intended for harmless side effects (e.g. debug logging), not cleanup work
      * such as closing connections or releasing resources.
      */
     onDetach: (fn: () => void) => {
       const { id } = sc.currentEffect;
       if (!id) {
-        throw new Error("onDetach debe usarse dentro de un efecto");
+        throw new Error("onDetach must be called from within an effect");
+      }
+      if (!signal.effects.has(id)) {
+        throw new Error(
+          "onDetach must be called after reading the signal (get()) within the same effect",
+        );
       }
       if (!signal.onDetaches.has(id)) {
         signal.onDetaches.set(id, []);
