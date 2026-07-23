@@ -25,16 +25,16 @@ describe("domdiff", () => {
 
     // effect_1
     effect(() => {
+      areaNode.innerText = `${w.get() * h.get()}`;
       w.onDetach(() => lg.log("effect_1 from w (a)"));
       w.onDetach(() => lg.log("effect_1 from w (b)"));
       h.onDetach(() => lg.log("effect_1 from h"));
-      areaNode.innerText = `${w.get() * h.get()}`;
     });
 
     // effect_2
     effect(() => {
-      w.onDetach(() => lg.log("effect_2 from w"));
       w.get();
+      w.onDetach(() => lg.log("effect_2 from w"));
     });
 
     return areaNode;
