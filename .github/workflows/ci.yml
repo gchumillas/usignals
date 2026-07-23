@@ -3,19 +3,33 @@ name: CI
 on:
   push:
     branches: [main]
+    paths:
+      - "src/**"
+      - "example/**"
+      - "package.json"
+      - "tsconfig.json"
+      - ".github/workflows/**"
   pull_request:
     branches: [main]
+    paths:
+      - "src/**"
+      - "example/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - ".github/workflows/**"
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-
       - run: npm i
       - run: npm test
       - run: npm run build
