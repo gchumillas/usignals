@@ -7,13 +7,13 @@ export const Row = (row: Ingredient) => {
   const kcal100g = signal(+row.kcal100g);
   const total = signal(+row.total);
 
-  const handleChangeKcal100g = (value: string) => {
-    const val = parseFloat(value) || 0;
+  const handleChangeKcal100g = (e: TargetEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.currentTarget?.value) || 0;
     kcal100g.set(val);
   };
 
-  const handleChangeTotal = (value: string) => {
-    const val = parseFloat(value) || 0;
+  const handleChangeTotal = (e: TargetEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.currentTarget.value) || 0;
     total.set(val);
   };
 
@@ -27,7 +27,7 @@ export const Row = (row: Ingredient) => {
           type="text"
           placeholder="kcal/100 gr"
           value={row.kcal100g}
-          onInput={(e) => handleChangeKcal100g(e.currentTarget.value)}
+          onInput={handleChangeKcal100g}
         />
       </td>
       <td>
@@ -35,7 +35,7 @@ export const Row = (row: Ingredient) => {
           type="text"
           placeholder="total gr"
           value={row.total}
-          onInput={(e) => handleChangeTotal(e.currentTarget.value)}
+          onInput={handleChangeTotal}
         />
       </td>
       <td>{Render(() => ((kcal100g.get() * total.get()) / 100).toFixed(2))}</td>
