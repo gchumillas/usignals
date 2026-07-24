@@ -50,8 +50,10 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@types/react": "^19.2.17",
     "happy-dom": "^20.11.1",
     "husky": "^9.1.7",
+    "jsx-dom": "^8.1.6",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vitest": "^4.1.10"

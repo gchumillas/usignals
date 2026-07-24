@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+import { h } from "jsx-dom";
 import { describe, expect, test } from "vitest";
 import { signal, effect, domdiff } from "./dom.js";
 
@@ -20,25 +21,25 @@ const logger = () => {
 describe("domdiff", () => {
   test("clean effects", () => {
     const lg = logger();
-    const parentNode = document.createElement("div");
+    const parentNode = <div />;
     const rows = [{ id: "1" }, { id: "2" }, { id: "3" }];
 
     const Row = (id: string) => {
-      const [w, h] = [signal(5), signal(7)];
-      const areaNode = document.createElement("span");
+      const [width, height] = [signal(5), signal(7)];
+      const areaNode = <span />;
       areaNode.dataset.id = id;
 
       // effect_1
       effect(
         () => {
-          areaNode.innerText = `${w.get() * h.get()}`;
+          areaNode.textContent = `${width.get() * height.get()}`;
         },
         (s) => {
           switch (s) {
-            case w:
+            case width:
               lg.log("effect_1 detached from w");
               break;
-            case h:
+            case height:
               lg.log("effect_1 detached from h");
           }
         },
@@ -47,10 +48,10 @@ describe("domdiff", () => {
       // effect_2
       effect(
         () => {
-          w.get();
+          width.get();
         },
         (s) => {
-          if (s === w) {
+          if (s === width) {
             lg.log("effect_2 detached from w");
           }
         },
@@ -77,16 +78,14 @@ describe("domdiff", () => {
 
   test("clean nested effects", () => {
     const lg = logger();
-    const tableNode = document.createElement("table");
-    const tbodyNode = document.createElement("tbody");
-    tableNode.appendChild(tbodyNode);
+    const tbodyNode = <tbody />;
     const rows = [{ id: "1" }, { id: "2" }];
 
     const Td = (id: string) => {
       const b = signal(0);
-      const tdNode = document.createElement("td");
+      const tdNode = <td />;
       tdNode.dataset.id = id;
-      tdNode.innerText = `Cell ${id}`;
+      tdNode.textContent = `Cell ${id}`;
 
       effect(
         () => {
@@ -104,7 +103,7 @@ describe("domdiff", () => {
 
     const Tr = (id: string) => {
       const a = signal(0);
-      const trNode = document.createElement("tr");
+      const trNode = <tr />;
       trNode.dataset.id = id;
 
       effect(
