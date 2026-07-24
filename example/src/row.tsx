@@ -20,34 +20,53 @@ export const Row = (row: Ingredient) => {
   return (
     <tr data-id={row.id}>
       <td>
-        <input type="text" placeholder="Ingredient" value={row.name} />
+        <input
+          type="text"
+          placeholder="Ingredient"
+          value={row.name}
+          class="input"
+        />
       </td>
       <td>
         <input
-          type="text"
+          type="number"
           placeholder="kcal/100 gr"
           value={row.kcal100g}
           onInput={handleChangeKcal100g}
+          class="input"
         />
       </td>
       <td>
         <input
-          type="text"
+          type="number"
           placeholder="total gr"
           value={row.total}
           onInput={handleChangeTotal}
+          class="input"
         />
       </td>
-      <td>{Render(() => ((kcal100g.get() * total.get()) / 100).toFixed(2))}</td>
-      <td>
-        <button type="button" onClick={() => handleAddRow(row.id)}>
-          +
-        </button>
+      <td class="text-center">
+        <span class="text-sm">
+          {Render(() => ((kcal100g.get() * total.get()) / 100).toFixed(2))}
+        </span>
       </td>
-      <td>
-        <button type="button" onClick={() => handleDeleteRow(row.id)}>
-          -
-        </button>
+      <td class="text-right">
+        <div class="inline-flex gap-1.5">
+          <button
+            type="button"
+            onClick={() => handleAddRow(row.id)}
+            class="btn"
+          >
+            +
+          </button>
+          <button
+            type="button"
+            onClick={() => handleDeleteRow(row.id)}
+            class="btn"
+          >
+            -
+          </button>
+        </div>
       </td>
     </tr>
   );

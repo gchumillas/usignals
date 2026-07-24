@@ -1,3 +1,4 @@
+import "./style.css";
 import { signal, effect, domdiff } from "@gchumillas/usignals";
 import { openDb, fetchIngredients, type Ingredient } from "./db";
 import { ctx } from "./context";
@@ -37,7 +38,22 @@ function Main() {
       ctx.with({ handleAddRow, handleDeleteRow }, Row),
     ),
   );
-  return <table>{tbodyNode}</table>;
+  return (
+    <div class="container my-10 mx-auto max-w-2xl">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Ingredient</th>
+            <th>kcal / 100g</th>
+            <th>grams</th>
+            <th>Total (kcal)</th>
+            <th>&nbsp;</th>
+          </tr>
+        </thead>
+        {tbodyNode}
+      </table>
+    </div>
+  );
 }
 
 export { Main };
