@@ -103,7 +103,10 @@ const createEffects = (sc: Scope) => {
   };
 
   return {
-    effect: (fn: () => void, onDetachFromSignal?: (s: Signal<any>) => void) => {
+    effect: (
+      fn: () => void,
+      _onDetachFromSignal?: (s: Signal<any>) => void, // for internal-only (mainly testing)
+    ) => {
       const prevEffect = { ...sc.currentEffect };
       const prevCleaners = sc.cleaners;
       try {
@@ -111,7 +114,7 @@ const createEffects = (sc: Scope) => {
         sc.currentEffect = {
           id,
           fn,
-          onDetachFromSignal,
+          onDetachFromSignal: _onDetachFromSignal,
           effectsId: effects.id,
         };
         sc.cleaners = effects.signalCleaners;

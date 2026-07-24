@@ -8,8 +8,8 @@ export const signal = sc.signal;
 
 export const effect = (
   fn: () => void,
-  onDetachFromSignal?: (s: Signal<any>) => void,
-) => currentEffects.effect(fn, onDetachFromSignal);
+  _onDetachFromSignal?: (s: Signal<any>) => void, // // for internal-only (mainly testing)
+) => currentEffects.effect(fn, _onDetachFromSignal);
 
 export function Render(fn: () => string) {
   const node = document.createTextNode("");
