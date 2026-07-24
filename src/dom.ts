@@ -38,7 +38,7 @@ export function domdiff<T extends { id: string | number }>(
     effectsMap.set(parentNode, Object.create(null));
   }
   const savedEffects = effectsMap.get(parentNode);
-  const prevEffects = currentEffects;
+  const parentEffects = currentEffects;
   try {
     const ids: { [id: string]: HTMLElement } = {};
     const rowIdSet = new Set(rows.map((r) => `${r.id}`));
@@ -67,12 +67,13 @@ export function domdiff<T extends { id: string | number }>(
       if (!savedEffects[row.id]) {
         // creates an effects group per row
         savedEffects[row.id] = sc.effects();
+        parentEffects.addChild(savedEffects[row.id]);
       }
       currentEffects = savedEffects[row.id];
       nodes.push(ids[`${row.id}`] || insert(row));
     }
     udomdiff(parentNode, Array.from(parentNode.children), nodes, (n: any) => n);
   } finally {
-    currentEffects = prevEffects;
+    currentEffects = parentEffects;
   }
 }
