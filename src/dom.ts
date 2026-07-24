@@ -6,15 +6,6 @@ let currentEffects = sc.effects();
 
 export const signal = sc.signal;
 
-/**
- * Runs `fn` and re-runs it whenever any signal it has read changes.
- *
- * Note: subscriptions are not automatically pruned between runs; use the owning
- * effects group’s `clean()` to detach from previously read signals.
- *
- * Intended for harmless side effects (e.g. updating the UI), not for
- * setting up resources like database connections or file handles.
- */
 export const effect = (
   fn: () => void,
   onDetachFromSignal?: (s: Signal<any>) => void,

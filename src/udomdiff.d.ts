@@ -1,4 +1,4 @@
-// https://github.com/WebReflection/udomdiff
+// github.com/WebReflection/udomdiff
 declare module "udomdiff" {
   function udomdiff<T extends Node>(
     parentNode: ParentNode, // where changes happen
