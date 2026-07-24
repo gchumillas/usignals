@@ -42,6 +42,7 @@ export function domdiff<T extends { id: string | number }>(
   try {
     const ids: { [id: string]: HTMLElement } = {};
     const rowIdSet = new Set(rows.map((r) => `${r.id}`));
+    // clean the effects of nodes that have been detached from the DOM
     for (const child of Array.from(parentNode.children)) {
       if (!(child instanceof HTMLElement)) {
         continue;
@@ -57,6 +58,7 @@ export function domdiff<T extends { id: string | number }>(
       }
       ids[id] = child;
     }
+    // nodes to be repositioned or inserted
     let nodes = [];
     for (const row of rows) {
       if (row.id === undefined || row.id === null) {
