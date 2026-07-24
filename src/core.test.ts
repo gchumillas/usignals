@@ -213,6 +213,23 @@ describe("cleaning cases", () => {
     expect(counter2).toBe(2); // effect2 is not executed
     expect(counter3).toBe(3);
   });
+
+  test("nested effects cleanup", () => {
+    const sc = createScope();
+    const a = sc.signal(0);
+    const efs0 = sc.effects();
+    const efs01 = efs0.effects();
+
+    let counter = 0;
+    efs01.effect(() => {
+      counter++;
+      a.get();
+    });
+
+    efs0.clean();
+    a.set(1);
+    expect(counter).toBe(1); // sub-effect is not executed
+  });
 });
 
 describe("memory and optimization cases", () => {
