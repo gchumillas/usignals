@@ -6,6 +6,11 @@
     "declaration": true,
     "skipLibCheck": true,
 
+    /* JSX */
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "moduleDetection": "force",
