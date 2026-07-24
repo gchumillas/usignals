@@ -57,8 +57,7 @@ export function domdiff<T extends { id: string | number }>(
       }
       if (!savedEffects[row.id]) {
         // creates an effects group per row
-        savedEffects[row.id] = sc.effects();
-        parentEffects.addChild(savedEffects[row.id]);
+        savedEffects[row.id] = parentEffects.effects();
       }
       currentEffects = savedEffects[row.id];
       nodes.push(ids[`${row.id}`] || insert(row));

@@ -121,14 +121,15 @@ const createEffects = (sc: Scope) => {
         sc.cleaners = prevCleaners;
       }
     },
-    addChild: (child: { clean: () => void }) => {
-      if (effects.children.has(child)) return;
+    effects: () => {
+      const child = createEffects(sc);
       effects.children.add(child);
       const origClean = child.clean.bind(child);
       child.clean = () => {
         effects.children.delete(child);
         origClean();
       };
+      return child;
     },
     clean: () => {
       for (const [, cleanerFn] of effects.signalCleaners) {
