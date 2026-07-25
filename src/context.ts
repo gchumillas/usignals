@@ -4,7 +4,7 @@
  * This allows us to transmit data from parents to children without needing to pass
  * them explicitly through parameters, thus avoiding the "prop-drilling" anti-pattern.
  *
- * ```
+ * ```js
  * // context.ts
  * export const ctx = createContext()
  *
