@@ -41,7 +41,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --clean && node scripts/hide-internal-params.mjs",
+    "build": "tsup src/index.ts --format esm,cjs --dts --minify-whitespace --minify-identifiers --minify-syntax --clean && node scripts/hide-internal-params.mjs",
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
     "lint": "tsc --noEmit",
     "test": "vitest run",
