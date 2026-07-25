@@ -1,6 +1,6 @@
 # µSignals (`@gchumillas/usignals`)
 
-A tiny, dependency-free reactive signals library for JavaScript/TypeScript.
+A tiny (~1KB zipped), dependency-free reactive signals library for JavaScript/TypeScript.
 
 ## Installation
 
@@ -11,31 +11,52 @@ npm install @gchumillas/usignals
 ## Usage
 
 ```ts
-import { createContext } from "@gchumillas/usignals";
+import { signal, effect } from "@gchumillas/usignals";
 
-const ctx = createContext();
-const efs = ctx.effects();
+const width = signal(5);
+const height = signal(7);
 
-const width = ctx.signal(5);
-const height = ctx.signal(7);
-
-efs.effect(() => {
+// The effect runs the first time and
+// re-executes every time a signal changes.
+effect(() => {
   console.log(`area = ${width.get() * height.get()}`);
 });
 
 width.set(10); // logs: area = 70
 ```
 
+> [!NOTE]
+> See this [full example](./example) for more use cases.
+
 ## API
+
+### `signal(initVal)`
+
+Declares a reactive value or "signal"
+
+Signals can trigger "effects". If a signal has been used within
+an effect and its value has been read, then the effect re-executes
+every time the signal changes.
+
+### `effect(fn)`
+
+Declares an "effect".
+
+The effect runs the first time and re-executes every time
+a read signal changes. This allows us, primarily, to update
+the interface with the new signal values.
+
+### `domdiff(parentNode, rows, insert)`
+
+Efficiently updates a list of elements, freeing memory from
+effects whose elements have been detached from the document.
 
 ### `createContext()`
 
-Creates an isolated context that holds its own signals and effects. Returns:
+Creates a context channel.
 
-- `signal(initialValue)`: creates a reactive signal with `get()` and `set(value)` methods.
-- `effects()`: creates an effect scope. Returns:
-  - `effect(fn)`: runs `fn` immediately and re-runs it whenever any signal read inside it changes.
-  - `clean()`: disposes all effects created in this scope, unsubscribing them from their signals.
+> [!NOTE]
+> More detailed information in the [source code](./src) itself.
 
 ## Development
 
@@ -44,7 +65,3 @@ npm install     # install dependencies
 npm test        # run tests
 npm run build   # build dist/ (ESM + CJS + types)
 ```
-
-## License
-
-MIT
